@@ -28,3 +28,4 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //Route::get('/users', 'UserController@index');
 Route::post('/user/login', [UserController::class, 'login']);
 Route::post('/user/logout',[UserController::class, 'logout'])->middleware('auth:sanctum');
+Route::resource('/user', UserController::class);

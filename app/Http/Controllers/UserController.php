@@ -15,10 +15,11 @@ class UserController extends Controller
 {   
     public function index()
     {
-        $user = User::all(); 
+        $users = User::all();
     
-        return view('user.index', compact('user')); // Use compact() to pass the variable to the view
+        return response()->json(['users' => $users], 200);
     }
+    
     
       public function login(Request $req)
     {   
@@ -50,46 +51,64 @@ class UserController extends Controller
         ],500);
     }
     public function store(Request $req) {
-        $user = new User;
-        $user->name = $credentials['name'];
-        $user->email = $credentials['email'];
-        $user->password = Hash::make($credentials['password']);
-        $user->save();
-        return redirect()->route('user.index')->with('success', 'User created successfully!');
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => ['required', 'email', new EmailRule],
+            'password' => 'required|min:5',
+        ]);
+    
+        $user = User::create([
+            'name' => $validatedData['name'],
+            'email' => $validatedData['email'],
+            'password' => isset($validatedData['password']) ? Hash::make($validatedData['password']) : null,
+        ]);
+        return response()->json(['message' => 'User created successfully', 'user' => $user], 201);
     }
     public function update(Request $request, $id)
-    {
-        $user=User::find($id);
-        if (!$user) {
-            return redirect()->route('user.index')->with('error', 'User not found.');
-        }
-        $user->update($req->only(['name', 'email']));
-        //update pass
-        if ($request->filled('password')) {
-            $user->password = Hash::make($request->input('password'));
-            $user->save();
-        }
-return redirect()->route('user.index')->with('success', 'User updated successfully!');
+{
+    $validatedData = $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => ['required', 'email', new EmailRule],
+        'password' => 'required|min:5',
+    ]);
+
+    $user = User::find($id);
+    if (!$user) {
+        return response()->json(['error' => 'User not found.'], 404);
     }
+
+
+    $user->name = $validatedData['name'];
+    $user->email = $validatedData['email'];
+    $user->save();
+
+    
+    if ($request->filled('password')) {
+        $user->password = Hash::make($request->input('password'));
+        $user->save();
+    }
+
+    return response()->json(['message' => 'User updated successfully.'], 200);
+}
+
     public function show($id){
         $user=User::find($id);
         if (!$user) {
-            return redirect()->route('user.index')->with('error', 'User not found.');
+            return response()->json(['error' => 'User not found.'], 404);
         }
-        return view('user.show',['user' => $user]);
+        return response()->json(['message' => 'User show  successfully.'], 200);
     }
     public function destroy($id)
     {
         $user = User::find($id);
 
         if (!$user) {
-            return redirect()->route('user.index')->with('error', 'User not found.');
+            return response()->json(['error' => 'User not found.'], 404);
         }
         $user->delete();
 
-        return redirect()->route('user.index')->with('success', 'User deleted successfully!'); //redirect is like pointer to tell ur browser to go to the right place
-    }
+        return response()->json(['message' => 'User deleted successfully.'], 200);
 
 }
-
+}
 
