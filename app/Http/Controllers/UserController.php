@@ -80,14 +80,14 @@ class UserController extends Controller
 
     $user->name = $validatedData['name'];
     $user->email = $validatedData['email'];
-    $user->save();
+    
 
     
     if ($request->filled('password')) {
         $user->password = Hash::make($request->input('password'));
-        $user->save();
+       
     }
-
+    $user->save();
     return response()->json(['message' => 'User updated successfully.'], 200);
 }
 
