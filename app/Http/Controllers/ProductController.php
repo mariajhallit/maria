@@ -23,7 +23,6 @@ class ProductController extends Controller
          
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
-            'id'=>'required ',
             'description'=>'string',
             'price'=>'required',
             'image' => 'image|max:2048', 
@@ -43,7 +42,6 @@ class ProductController extends Controller
     public function update(Request $request, $id){
     $validatedData = $request->validate([
         'name' => 'required|string|max:255',
-        'id'=>'required |unique',
         'description'=>'string',
         'price'=>'required ',
         'image'=>'max:255',
