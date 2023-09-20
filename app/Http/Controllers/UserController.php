@@ -35,7 +35,7 @@ class UserController extends Controller
             'password'=>'required | min:5',
             'email' => ['required'],
         ]);
-        //  $data=$request->input();
+        $data=$request->input();
     
         $user = User::where('email', $data['email'])->first(); //jeble awal user l 3ndo he email first()
         if(!Hash::check($data['password'], $user->password)){
