@@ -29,13 +29,13 @@ class UserController extends Controller
     }
     
     
-      public function login(Request $req)
+      public function login(Request $request)
     {   
-        $credentials= $req->validate([
+        $data= $request->validate([
             'password'=>'required | min:5',
             'email' => ['required'],
         ]);
-         $data=$req->input();
+         $data=$request->input();
     
         $user = User::where('email', $data['email'])->first(); //jeble awal user l 3ndo he email first()
         if(!Hash::check($data['password'], $user->password)){
@@ -47,9 +47,9 @@ class UserController extends Controller
 }
 
     
-    public function logout(Request $req) 
+    public function logout(Request $request) 
     {
-        if($req->user()->tokens()->delete()){
+        if($request->user()->tokens()->delete()){
             return response()->json([
                 'message'=>'Logout Successfully'
             ],200);
@@ -58,8 +58,8 @@ class UserController extends Controller
             'message'=>'error'
         ],500);
     }
-    public function store(Request $req) {
-        $validatedData = $req->validate([
+    public function store(Request $request) {
+        $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'email' => ['required', 'email'],
             'password' => 'required|min:5',
