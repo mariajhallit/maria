@@ -10,12 +10,20 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Rules\EmailRule;
 use Illuminate\View\View;
+use Spatie\QueryBuilder\QueryBuilder;
 
 class UserController extends Controller
 {   
     public function index()
     {
-        $users = User::all();
+        $users = QueryBuilder::for(User::class)
+        ->allowedFilters(['name', 'email'])
+        ->allowedSorts(['name', 'email', 'created_at'])
+        ->defaultSort('email') 
+        ->paginate()
+        ->appends(request()->query()); //the website remembers your filter (size 10) and sorting (low to high). So even on the next page, you still see size 10 shoes sorted by price. It's like the website saying, "Oh, you wanted size 10 and low to high? Got it!"
+       //This way, you don't have to reselect your options when you go to the next page.
+        // $users = User::all();
     
         return response()->json(['users' => $users], 200);
     }
@@ -25,12 +33,12 @@ class UserController extends Controller
     {   
         $credentials= $req->validate([
             'password'=>'required | min:5',
-            'email' => ['required', new EmailRule()],
+            'email' => ['required'],
         ]);
-         return $req->input();
+         $data=$req->input();
     
-        $user = User::where('email', $req->email)->first(); //jeble awal user l 3ndo he email first()
-        if(!Hash::check($req->password, $user->password)){
+        $user = User::where('email', $data['email'])->first(); //jeble awal user l 3ndo he email first()
+        if(!Hash::check($data['password'], $user->password)){
         return 'cannot login';
     }
     $token=$user->createToken($user->name);
@@ -51,9 +59,9 @@ class UserController extends Controller
         ],500);
     }
     public function store(Request $req) {
-        $validatedData = $request->validate([
+        $validatedData = $req->validate([
             'name' => 'required|string|max:255',
-            'email' => ['required', 'email', new EmailRule],
+            'email' => ['required', 'email'],
             'password' => 'required|min:5',
         ]);
     
