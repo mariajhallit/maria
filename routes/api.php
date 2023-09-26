@@ -35,5 +35,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::resource('/users', UserController::class);
     Route::resource('/categories', CategoryController::class);
     Route::resource('/products', ProductController::class);
+    Route::post('categories/import', CategoryController::class,'importCategories');
+    Route::post('categories/export', CategoryController::class,'exportCategories');
+
    
 });

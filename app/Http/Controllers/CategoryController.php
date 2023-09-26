@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Models\Category;
+use App\Imports\CategoriesImport;
+
+
 class CategoryController extends Controller
 {
     //
@@ -65,5 +68,23 @@ class CategoryController extends Controller
 
     return response()->json(['message' => 'category deleted successfully.'], 200);
 
+
 }
+public function importCategories(Request $request)
+{
+    $request->validate([
+        'csv_file' => 'required|mimes:xlsx,csv', // Validate file type (Excel or CSV)
+    ]);
+
+    $file = $request->file('csv_file');
+
+    Excel::import(new CategoriesImport, $file);
+
+    return response()->json(['message' => 'Categories imported successfully'], 200);
+}
+public function exportCategories()
+    {
+        return Excel::download(new CategoriesExport, 'categories.xlsx');
+    }
+
 }
