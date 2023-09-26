@@ -10,12 +10,14 @@ class ProductController extends Controller
     //
     public function index(Request $request): JsonResponse
     {
-        $products = QueryBuilder::for(Product::class)
-        ->allowedFilters(['name', 'id','description','image'])
-        ->allowedSorts(['name', 'id', 'price'])
-        ->defaultSort('price') 
-        ->paginate()
-        ->appends(request()->query());
+         $products = Cache::remember($cacheKey, 60, function () use ($request) {
+            return QueryBuilder::for(Product::class)
+                ->allowedFilters(['name', 'id', 'description', 'image'])
+                ->allowedSorts(['name', 'id', 'price'])
+                ->defaultSort('price')
+                ->paginate()
+                ->appends($request->query());
+        });
     
         return response()->json(['products' => $products], 200);
     } 
@@ -46,8 +48,8 @@ class ProductController extends Controller
             'category_id' => 'required|exists:categories,id', 
             'image' => 'image|max:2048', 
     ]);
-    $products = Product::find($id);
-    if (!$products) 
+    $product = Product::find($id);
+    if (!$product) 
     {
         return response()->json(['message' => 'product not found'], 404);
     }
@@ -67,25 +69,25 @@ class ProductController extends Controller
 
     $product->update($validatedData);
 
-    $products->save();
+    $product->save();
     return response()->json(['message' => 'product updated successfully'], 200);
 }
     
 public function show($id){
-    $products=Product::find($id);
-    if (!$products) {
+    $product=Product::find($id);
+    if (!$product) {
         return response()->json(['error' => 'product not found.'], 404);
     }
     return response()->json(['message' => 'product show  successfully.'], 200);
 }
      public function destroy($id)
 {
-    $products = Product::find($id);
+    $product= Product::find($id);
 
-    if (!$products) {
+    if (!$product) {
         return response()->json(['error' => 'product not found.'], 404);
     }
-    $products->delete();
+    $product->delete();
 
     return response()->json(['message' => 'product deleted successfully.'], 200);
 

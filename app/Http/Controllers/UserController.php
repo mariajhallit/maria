@@ -16,18 +16,24 @@ class UserController extends Controller
 {   
     public function index()
     {
-        $users = QueryBuilder::for(User::class)
-        ->allowedFilters(['name', 'email'])
-        ->allowedSorts(['name', 'email', 'created_at'])
-        ->defaultSort('email') 
-        ->paginate()
-        ->appends(request()->query()); //the website remembers your filter (size 10) and sorting (low to high). So even on the next page, you still see size 10 shoes sorted by price. It's like the website saying, "Oh, you wanted size 10 and low to high? Got it!"
+        // $users = QueryBuilder::for(User::class)
+        // ->allowedFilters(['name', 'email'])
+        // ->allowedSorts(['name', 'email', 'created_at'])
+        // ->defaultSort('email') 
+        // ->paginate()
+        // ->appends(request()->query()); //the website remembers your filter (size 10) and sorting (low to high). So even on the next page, you still see size 10 shoes sorted by price. It's like the website saying, "Oh, you wanted size 10 and low to high? Got it!"
        //This way, you don't have to reselect your options when you go to the next page.
         // $users = User::all();
+        $users = QueryBuilder::for(User::class)
+        ->allowedIncludes(['name,email'])
+        ->with('name')
+        ->withCount('name')
+        ->withExists('name')
+        ->get();
     
         return response()->json(['users' => $users], 200);
     }
-    
+   
     
       public function login(Request $request)
     {   
