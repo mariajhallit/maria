@@ -8,17 +8,20 @@ use App\Models\Category;
 class CategoryController extends Controller
 {
     //
-    public function index(Request $request): JsonResponse
-    {
-        $categories = QueryBuilder::for(Category::class)
+   public function index(Request $request): JsonResponse
+{
+    $categories = Category::with(['products' => function ($query) {
+        $query->select('id', 'name', 'description', 'image', 'price');
+    }])
         ->allowedFilters(['name', 'id'])
         ->allowedSorts(['name', 'id', 'created_at'])
-        ->defaultSort('id') 
+        ->defaultSort('id')
         ->paginate()
         ->appends(request()->query());
-    
-        return response()->json(['categories' => $categories], 200);
-    } 
+
+    return response()->json(['categories' => $categories], 200);
+}
+
     
      public function store(Request $request): JsonResponse {
          
@@ -27,8 +30,8 @@ class CategoryController extends Controller
             
            
         ]);
-        $categories = Category::create($validatedData);
-        return response()->json(['categories' => $categories], 201);
+        $category = Category::create($validatedData);
+        return response()->json(['category' => $category], 201);
 }
     public function update(Request $request, $id){
     $validatedData = $request->validate([
