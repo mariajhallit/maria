@@ -32,11 +32,16 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::post('/user/login', [UserController::class, 'login']);
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/user/logout', [UserController::class, 'logout']);
-    Route::resource('/users', UserController::class);
-    Route::resource('/categories', CategoryController::class);
-    Route::resource('/products', ProductController::class);
-    Route::post('categories/import', CategoryController::class,'importCategories');
-    Route::post('categories/export', CategoryController::class,'exportCategories');
+    Route::resource('/users', UserController::class)->middleware('permission:manage_users');
+    Route::resource('/categories', CategoryController::class)->middleware('role:super','permission:manage_categories');
+
+
+    Route::middleware(['auth:sanctum', 'throttle:api.products', 'role:super '])->group(function () {
+         Route::resource('/products', ProductController::class)->middleware('permission:manage_products');
+    });
+
+    Route::post('/categories/import',[CategoryController::class,'importCategories']);
+    Route::post('/categories/export', [CategoryController::class,'exportCategories']);
 
    
 });

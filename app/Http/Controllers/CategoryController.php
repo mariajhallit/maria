@@ -5,7 +5,13 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Models\Category;
-use App\Imports\CategoriesImport;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\CategoryExport;
+use App\Imports\CategoryImport;
+
+
+
+
 
 
 class CategoryController extends Controller
@@ -22,7 +28,7 @@ class CategoryController extends Controller
         ->paginate()
         ->appends(request()->query());
 
-    return response()->json(['categories' => $categories], 200);
+     return response()->json(['categories' => $categories], 200);
 }
 
     
@@ -30,7 +36,7 @@ class CategoryController extends Controller
          
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
-            
+            'id'=>'required',
            
         ]);
         $category = Category::create($validatedData);
@@ -43,7 +49,7 @@ class CategoryController extends Controller
     ]);
     $category = Category::find($id);
     if (!$category) {
-        return response()->json(['message' => 'Category not found'], 404);
+        return response()->json(['message' => 'Cat not found'], 404);
     }
     $category->name = $validatedData['name'];
 
@@ -78,13 +84,13 @@ public function importCategories(Request $request)
 
     $file = $request->file('csv_file');
 
-    Excel::import(new CategoriesImport, $file);
+    Excel::import(new CategoryImport, $file);
 
     return response()->json(['message' => 'Categories imported successfully'], 200);
 }
 public function exportCategories()
     {
-        return Excel::download(new CategoriesExport, 'categories.xlsx');
+        return Excel::download(new CategoryExport, 'categories.xlsx');
     }
 
 }

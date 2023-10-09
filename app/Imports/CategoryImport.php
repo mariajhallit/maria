@@ -3,10 +3,13 @@
 namespace App\Imports;
 
 use App\Models\Category;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\CategoryImport;
 use Illuminate\Support\Facades\Hash;
+use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\ToModel;
 
-class CategoriesImport implements ToModel
+class CategoryImport implements ToModel, WithHeadingRow
 {
     /**
      * @param array $row
@@ -17,8 +20,6 @@ class CategoriesImport implements ToModel
     {
         return new Category([
            'name'     => $row[0],
-           'email'    => $row[1], 
-           'password' => Hash::make($row[2]),
         ]);
     }
 }
